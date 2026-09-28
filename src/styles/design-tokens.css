@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════
-   Understand & Represent Problems Design Tokens
-   Matching G2-Money-Money-main Design System
+   RepresentQuest Design Tokens
+   Grade 7 · Understand and Represent Problems
    ════════════════════════════════════════════ */
 
 :root {
@@ -23,17 +23,22 @@
   --green: #4caf50;
   --red: #ef5350;
 
-  /* ── Practice world accents (10 worlds) ── */
-  --world-0: #FFD700;   /* Detective HQ — gold */
-  --world-1: #FF6F61;   /* Letter Lagoon — coral */
-  --world-2: #4CAF50;   /* Bar Model Bay — green */
-  --world-3: #AB47BC;   /* Table Tower — purple */
-  --world-4: #29B6F6;   /* Equation Express — sky blue */
-  --world-5: #EC407A;   /* Balance Arena — pink */
-  --world-6: #FF9800;   /* Ratio River — orange */
-  --world-7: #26A69A;   /* Percent Peak — teal */
-  --world-8: #5C6BC0;   /* Speedway — indigo */
-  --world-9: #FFC107;   /* Master Citadel — gold */
+  /* ── Character & Mascot accents ── */
+  --char-1: #f472b6;  /* Rania */
+  --char-2: #38bdf8;  /* Vikram */
+  --mascot: #fbbf24;  /* Buzz the Bee */
+
+  /* ── Event Planning World accents (10 worlds from TRD §9) ── */
+  --world-0: #6A0572;   /* The Client's Request — invitation purple */
+  --world-1: #AB83A1;   /* Filtering the Wish List — soft mauve */
+  --world-2: #F72585;   /* Picking the Planning Tool — party pink */
+  --world-3: #3A0CA3;   /* Splitting the Budget — budget indigo */
+  --world-4: #4361EE;   /* Who Gets More? — guest-list blue */
+  --world-5: #4CC9F0;   /* The Guest List Table — RSVP cyan */
+  --world-6: #7209B7;   /* Mapping the Venue — venue violet */
+  --world-7: #F77F00;   /* From Plan to Booking — confirmation orange */
+  --world-8: #D00000;   /* When Bars Won't Balance — overflow red */
+  --world-9: #240046;   /* The Grand Event Review — deep celebration purple */
 
   /* ── Typography ── */
   --font-display: 'Fredoka', 'Fredoka One', 'Nunito', system-ui, -apple-system, sans-serif;
