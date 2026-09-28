@@ -1,0 +1,196 @@
+/* src/App.css */
+/* ─── App Shell ─────────────────────────────────────────────────────────── */
+.app-shell {
+  width: 100%;
+  max-width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.phase-content {
+  flex: 1;
+  width: 100%;
+  max-width: 100vw;
+  height: calc(100vh - 58px);
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  position: relative;
+  padding-top: 58px;
+  padding-bottom: 6px;
+  box-sizing: border-box;
+}
+
+/* ─── Header & Navigation ────────────────────────────────────────────────── */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  max-width: 100vw;
+  height: 56px;
+  z-index: 150;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+/* Top-left controls: Audio Toggle & Home Button */
+.top-left-controls {
+  position: absolute;
+  top: 8px;
+  left: 16px;
+  z-index: 200;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Audio Toggle Button in top-left */
+.audio-toggle-btn {
+  background: rgba(22, 18, 48, 0.9);
+  border: 1.5px solid rgba(251, 191, 36, 0.4);
+  color: #fbbf24;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.92rem;
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: var(--transition-fast);
+  min-height: 36px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+}
+
+.audio-toggle-btn:hover {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: #fcd34d;
+  color: #fcd34d;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35);
+}
+
+.audio-toggle-btn.muted {
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
+  background: rgba(60, 15, 25, 0.85);
+}
+
+.audio-toggle-btn.muted:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+/* Floating Audio Toggle for Intro Screen */
+.intro-audio-btn {
+  position: fixed;
+  top: 14px;
+  left: 16px;
+  z-index: 250;
+  pointer-events: auto;
+}
+
+.home-btn {
+  background: rgba(22, 18, 48, 0.9);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.92rem;
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: var(--transition-fast);
+  min-height: 36px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+}
+
+.home-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.home-btn:active, .audio-toggle-btn:active {
+  transform: translateY(0);
+}
+
+/* Center Journey Progress Map */
+.header-progress {
+  position: absolute;
+  left: 50%;
+  top: 7px;
+  transform: translateX(-50%);
+  z-index: 160;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* ─── Responsive adjustments ────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .app-header {
+    height: 52px;
+  }
+  .phase-content {
+    padding-top: 52px;
+    height: calc(100vh - 52px);
+  }
+  .header-progress {
+    top: 5px;
+  }
+  .home-btn span.home-text, .audio-toggle-btn span.audio-text {
+    display: none;
+  }
+  .home-btn, .audio-toggle-btn {
+    padding: 6px 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .app-header {
+    height: 48px;
+    padding: 0 8px;
+  }
+  .phase-content {
+    padding-top: 48px;
+    height: calc(100vh - 48px);
+  }
+  .top-left-controls {
+    left: 8px;
+    top: 6px;
+    gap: 4px;
+  }
+  .header-progress {
+    left: auto;
+    right: 8px;
+    transform: none;
+  }
+}
