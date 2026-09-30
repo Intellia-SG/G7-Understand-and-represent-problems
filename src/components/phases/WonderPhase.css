@@ -31,7 +31,7 @@
 
 .wonder-content {
   width: 100%;
-  max-width: 680px;
+  max-width: 660px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -42,33 +42,32 @@
 
 .wonder-card {
   width: 100%;
-  padding: clamp(14px, 2.2vh, 26px) clamp(16px, 2.5vw, 32px);
+  padding: clamp(14px, 2vh, 22px) clamp(16px, 2.5vw, 28px);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: clamp(8px, 1.4vh, 14px);
+  gap: clamp(8px, 1.2vh, 12px);
   box-sizing: border-box;
-  background: rgba(26, 20, 68, 0.88);
-  border: 1.5px solid rgba(130, 110, 210, 0.3);
-  border-radius: var(--radius-lg, 20px);
+  background: rgba(26, 20, 68, 0.85);
+  border: 1px solid rgba(130, 110, 210, 0.25);
+  border-radius: var(--radius-lg, 18px);
   box-shadow: 0 16px 45px rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(20px);
 }
 
 .wonder-stadium-icon {
-  font-size: clamp(2.2rem, 3.5vw, 3.2rem);
+  font-size: clamp(2.2rem, 3.5vw, 3rem);
   line-height: 1;
 }
 
 .wonder-title {
   color: var(--gold);
   margin: 0;
-  font-size: clamp(1.4rem, 2.4vw, 2.1rem);
+  font-size: clamp(1.4rem, 2.4vw, 1.95rem);
   font-weight: 900;
   line-height: 1.2;
   text-shadow: 0 4px 18px rgba(255, 179, 0, 0.4);
-  font-family: var(--font-display);
 }
 
 .wonder-number-display {
@@ -82,23 +81,22 @@
 
 .wonder-num {
   color: var(--gold-light);
-  font-size: clamp(1.15rem, 1.8vw, 1.5rem);
+  font-size: clamp(1.15rem, 1.8vw, 1.45rem);
   font-weight: 900;
   letter-spacing: 0.5px;
-  font-family: var(--font-display);
 }
 
 .wonder-question-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-width: 600px;
+  gap: 6px;
+  max-width: 580px;
 }
 
 .wonder-q {
   color: var(--text-secondary);
-  font-size: clamp(0.98rem, 1.2vw, 1.15rem);
-  line-height: 1.5;
+  font-size: clamp(0.98rem, 1.15vw, 1.15rem);
+  line-height: 1.45;
   font-weight: 700;
   margin: 0;
 }
@@ -109,17 +107,19 @@
 }
 
 .wonder-highlight {
-  color: #38bdf8;
+  color: var(--gold);
   font-weight: 900;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .wonder-mascot-row {
-  margin: 4px 0;
-  display: flex;
-  justify-content: center;
-  width: 100%;
+  margin: 2px 0;
 }
 
 .wonder-cta {
+  font-size: 1.1rem;
+  padding: 10px 30px;
+  min-height: 44px;
   margin-top: 4px;
 }

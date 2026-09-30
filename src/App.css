@@ -46,81 +46,23 @@
   box-sizing: border-box;
 }
 
-/* Top-left controls: Audio Toggle & Home Button */
-.top-left-controls {
+.home-btn {
   position: absolute;
   top: 8px;
   left: 16px;
   z-index: 200;
   pointer-events: auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Audio Toggle Button in top-left */
-.audio-toggle-btn {
-  background: rgba(22, 18, 48, 0.9);
-  border: 1.5px solid rgba(251, 191, 36, 0.4);
-  color: #fbbf24;
-  font-family: var(--font-display);
+  background: rgba(18, 18, 48, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-family: var(--font-display, 'Fredoka', sans-serif);
   font-weight: 800;
   font-size: 0.92rem;
-  border-radius: var(--radius-pill);
-  padding: 6px 14px;
+  border-radius: var(--radius-pill, 9999px);
+  padding: 6px 16px;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  transition: var(--transition-fast);
-  min-height: 36px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
-  white-space: nowrap;
-}
-
-.audio-toggle-btn:hover {
-  background: rgba(245, 158, 11, 0.22);
-  border-color: #fcd34d;
-  color: #fcd34d;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35);
-}
-
-.audio-toggle-btn.muted {
-  border-color: rgba(239, 68, 68, 0.5);
-  color: #fca5a5;
-  background: rgba(60, 15, 25, 0.85);
-}
-
-.audio-toggle-btn.muted:hover {
-  background: rgba(239, 68, 68, 0.25);
-  border-color: #ef4444;
-  color: #ffffff;
-}
-
-/* Floating Audio Toggle for Intro Screen */
-.intro-audio-btn {
-  position: fixed;
-  top: 14px;
-  left: 16px;
-  z-index: 250;
-  pointer-events: auto;
-}
-
-.home-btn {
-  background: rgba(22, 18, 48, 0.9);
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
-  color: #ffffff;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 0.92rem;
-  border-radius: var(--radius-pill);
-  padding: 6px 14px;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  transition: var(--transition-fast);
+  transition: var(--transition-fast, 0.18s ease);
   min-height: 36px;
   cursor: pointer;
   display: inline-flex;
@@ -132,15 +74,16 @@
 
 .home-btn:hover {
   background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #ffffff;
   transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
 }
 
-.home-btn:active, .audio-toggle-btn:active {
+.home-btn:active {
   transform: translateY(0);
 }
 
-/* Center Journey Progress Map */
 .header-progress {
   position: absolute;
   left: 50%;
@@ -155,42 +98,48 @@
 }
 
 /* ─── Responsive adjustments ────────────────────────────────────────────── */
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .app-header {
-    height: 52px;
+    height: 50px;
+    padding: 0 8px;
   }
-  .phase-content {
-    padding-top: 52px;
-    height: calc(100vh - 52px);
+  .home-btn {
+    top: 7px;
+    left: 8px;
+    padding: 4px 10px;
+    font-size: 0.84rem;
+    min-height: 32px;
   }
   .header-progress {
-    top: 5px;
+    top: 7px;
   }
-  .home-btn span.home-text, .audio-toggle-btn span.audio-text {
-    display: none;
-  }
-  .home-btn, .audio-toggle-btn {
-    padding: 6px 10px;
+  .phase-content {
+    padding-top: 50px;
+    padding-bottom: max(60px, calc(40px + env(safe-area-inset-bottom, 20px)));
+    height: calc(100vh - 50px);
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 540px) {
   .app-header {
-    height: 48px;
-    padding: 0 8px;
+    height: 46px;
   }
-  .phase-content {
-    padding-top: 48px;
-    height: calc(100vh - 48px);
-  }
-  .top-left-controls {
-    left: 8px;
+  .home-btn {
     top: 6px;
-    gap: 4px;
+    left: 6px;
+    padding: 4px 8px;
+    gap: 0;
+    min-height: 30px;
+  }
+  .home-btn .home-text {
+    display: none;
   }
   .header-progress {
-    left: auto;
-    right: 8px;
-    transform: none;
+    top: 6px;
+  }
+  .phase-content {
+    padding-top: 46px;
+    padding-bottom: max(70px, calc(45px + env(safe-area-inset-bottom, 25px)));
+    height: calc(100vh - 46px);
   }
 }

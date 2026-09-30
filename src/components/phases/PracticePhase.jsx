@@ -1,10 +1,15 @@
 // src/components/phases/PracticePhase.jsx
+// Phase 4: Practice (Named "Practice" in UI per user instructions)
+// 10 event-planning worlds from WORLDS config, using questionBank.js and PlanVisual.jsx
+
 import React, { useState, useEffect, useRef } from 'react';
 import './PracticePhase.css';
-import { PRACTICE_WORLDS, makeQuestion } from '../../mathData.js';
-import { ProblemDiagram } from '../ProblemDiagram.jsx';
+import { WORLDS } from '../../config/worlds.config.js';
+import { getQuestionsForWorld } from '../../data/questionBank.js';
+import PlanVisual from '../shared/PlanVisual.jsx';
 import FeedbackOverlay from '../shared/FeedbackOverlay.jsx';
 import { useAudio } from '../../hooks/useAudio.js';
+import { MASCOT } from '../../config/characters.config.js';
 
 export function PracticeWorldSelect({ worldResults = [], onPlayWorld, onGoReflect }) {
   const totalStars = worldResults.reduce((a, b) => a + (b || 0), 0);
@@ -18,8 +23,8 @@ export function PracticeWorldSelect({ worldResults = [], onPlayWorld, onGoReflec
           <div className="practice-title-group">
             <span className="practice-title-icon">🎮</span>
             <div>
-              <h2 className="practice-main-title">Problem Solving Practice Worlds</h2>
-              <span className="practice-sub-title">10 Themed Worlds · Need 4/10 Correct to Unlock Next</span>
+              <h2 className="practice-main-title">Event Studio Practice Worlds</h2>
+              <span className="practice-sub-title">10 Themed Client Worlds · Need 4/10 Correct to Unlock Next</span>
             </div>
           </div>
 
@@ -39,7 +44,7 @@ export function PracticeWorldSelect({ worldResults = [], onPlayWorld, onGoReflec
 
         {/* 10 Worlds Grid */}
         <div className="practice-worlds-grid">
-          {PRACTICE_WORLDS.map((w, idx) => {
+          {WORLDS.map((w, idx) => {
             const isUnlocked = idx === 0 || (worldResults[idx - 1] != null && worldResults[idx - 1] > 0);
             const stars = worldResults[idx];
 
@@ -48,22 +53,29 @@ export function PracticeWorldSelect({ worldResults = [], onPlayWorld, onGoReflec
                 key={w.id}
                 onClick={() => isUnlocked && onPlayWorld(idx)}
                 className={`world-card ${isUnlocked ? 'unlocked' : 'locked'}`}
+                style={{
+                  borderTop: isUnlocked ? `4px solid ${w.accent}` : undefined
+                }}
               >
                 <div className="world-top-tag">
                   <span className="world-badge">W{idx + 1}</span>
                   <span className="world-range">{w.range}</span>
                 </div>
 
-                <span className="world-icon">{isUnlocked ? w.icon : '🔒'}</span>
+                <span className="world-icon">{isUnlocked ? w.emoji : '🔒'}</span>
 
                 <span className="world-name">{w.name}</span>
+
+                <div className="world-boss-preview" style={{ fontSize: '0.72rem', color: '#cbd5e1', marginTop: '2px' }}>
+                  Boss: {w.boss?.emoji} {w.boss?.name}
+                </div>
 
                 <div className="world-stars">
                   {isUnlocked ? (
                     stars != null && stars > 0 ? (
                       '★'.repeat(stars) + '☆'.repeat(3 - stars)
                     ) : (
-                      <span className="text-xs text-emerald-400 font-bold">Play →</span>
+                      <span className="text-xs text-emerald-400 font-bold">Start Plan →</span>
                     )
                   ) : (
                     <span className="text-xs text-slate-400 font-bold">Locked</span>
@@ -79,11 +91,11 @@ export function PracticeWorldSelect({ worldResults = [], onPlayWorld, onGoReflec
 }
 
 export function PracticeQuiz({ worldIndex, state, dispatch, onBackToWorlds }) {
-  const world = PRACTICE_WORLDS[worldIndex] || PRACTICE_WORLDS[0];
+  const world = WORLDS[worldIndex] || WORLDS[0];
   const { sounds } = useAudio(state?.audioEnabled ?? true);
 
+  const questions = useRef(getQuestionsForWorld(worldIndex)).current;
   const [qIndex, setQIndex] = useState(0);
-  const [qData, setQData] = useState(() => makeQuestion(worldIndex));
   const [selectedIdx, setSelectedIdx] = useState(null);
   const [lives, setLives] = useState(3);
   const [streak, setStreak] = useState(0);
@@ -91,9 +103,9 @@ export function PracticeQuiz({ worldIndex, state, dispatch, onBackToWorlds }) {
   const [feedback, setFeedback] = useState(null);
 
   const timerRef = useRef(null);
+  const currentQ = questions[qIndex] || questions[0];
 
   useEffect(() => {
-    setQData(makeQuestion(worldIndex));
     setSelectedIdx(null);
     setFeedback(null);
     return () => {
@@ -108,14 +120,13 @@ export function PracticeQuiz({ worldIndex, state, dispatch, onBackToWorlds }) {
     setCorrectCount(0);
     setSelectedIdx(null);
     setFeedback(null);
-    setQData(makeQuestion(worldIndex));
   }
 
-  function handleOptionClick(idx) {
+  function handleOptionClick(optStr, idx) {
     if (selectedIdx != null || lives <= 0 || feedback != null) return;
     setSelectedIdx(idx);
 
-    const isCorrect = idx === qData.correctIndex;
+    const isCorrect = optStr === currentQ.correctAnswer;
     let nextLives = lives;
     let nextCorrect = correctCount;
 
@@ -128,8 +139,8 @@ export function PracticeQuiz({ worldIndex, state, dispatch, onBackToWorlds }) {
 
       setFeedback({
         isCorrect: true,
-        title: 'Excellent! 🎉',
-        explanation: qData.explanation
+        title: 'Plan Approved! 🎉',
+        explanation: currentQ.explanation
       });
     } else {
       nextLives -= 1;
@@ -139,8 +150,8 @@ export function PracticeQuiz({ worldIndex, state, dispatch, onBackToWorlds }) {
 
       setFeedback({
         isCorrect: false,
-        title: 'Not Quite!',
-        explanation: `Solution: ${qData.explanation}`
+        title: 'Planning Revision Needed!',
+        explanation: currentQ.explanation
       });
     }
 
@@ -148,7 +159,7 @@ export function PracticeQuiz({ worldIndex, state, dispatch, onBackToWorlds }) {
     timerRef.current = setTimeout(() => {
       setFeedback(null);
       if (nextLives > 0) {
-        if (qIndex < 9) {
+        if (qIndex < questions.length - 1) {
           setQIndex(i => i + 1);
         } else {
           // Finished world (10 questions completed)
@@ -169,7 +180,7 @@ export function PracticeQuiz({ worldIndex, state, dispatch, onBackToWorlds }) {
   }
 
   const isGameOver = lives <= 0;
-  const progressPercent = Math.round(((qIndex + 1) / 10) * 100);
+  const progressPercent = Math.round(((qIndex + 1) / Math.max(questions.length, 1)) * 100);
 
   return (
     <div className="practice-wrap">
@@ -183,7 +194,7 @@ export function PracticeQuiz({ worldIndex, state, dispatch, onBackToWorlds }) {
             if (timerRef.current) clearTimeout(timerRef.current);
             setFeedback(null);
             if (lives > 0) {
-              if (qIndex < 9) setQIndex(i => i + 1);
+              if (qIndex < questions.length - 1) setQIndex(i => i + 1);
               else onBackToWorlds();
             }
           }}
@@ -197,12 +208,14 @@ export function PracticeQuiz({ worldIndex, state, dispatch, onBackToWorlds }) {
             ← Worlds
           </button>
 
-          <span className="quiz-world-tag">{world.name}</span>
+          <span className="quiz-world-tag">
+            {world.emoji} {world.name} (Q{qIndex + 1}/10)
+          </span>
 
           <div className="quiz-hud">
             <div className="quiz-hud-pill">
               <span>⭐</span>
-              <span>{correctCount * 10}</span>
+              <span>{correctCount * 10} XP</span>
             </div>
 
             <div className="quiz-hud-pill">
@@ -225,10 +238,10 @@ export function PracticeQuiz({ worldIndex, state, dispatch, onBackToWorlds }) {
 
         {isGameOver ? (
           <div className="out-of-hearts-box anim-bounce-in">
-            <span className="out-of-hearts-emoji">🥺</span>
-            <h3 className="out-of-hearts-title">Out of Hearts!</h3>
+            <span className="out-of-hearts-emoji">🐝</span>
+            <h3 className="out-of-hearts-title">Planning Revision Needed!</h3>
             <p className="body-text text-secondary max-w-md">
-              Detective Zara says: "Don't worry! Every great detective reviews their notes and tries again. You've got this!"
+              {MASCOT.name} says: "Don't fret! Great event directors inspect their plans and try again. Reread the request and let's go!"
             </p>
             <div className="flex items-center gap-3 mt-4">
               <button className="btn btn-primary btn-md" onClick={restartQuiz}>
@@ -243,23 +256,32 @@ export function PracticeQuiz({ worldIndex, state, dispatch, onBackToWorlds }) {
           <>
             {/* Question Card */}
             <div className="quiz-question-box">
-              <div className="quiz-rule-pill">✦ {qData.tip}</div>
+              <div className="quiz-rule-pill">
+                ✦ Focus: {world.description}
+              </div>
 
-              {qData.diagramData && (
-                <div className="my-2">
-                  <ProblemDiagram diagramData={qData.diagramData} />
+              {/* Render PlanVisual if question has visual data */}
+              {currentQ.visualData && (
+                <div className="my-3">
+                  <PlanVisual
+                    type={currentQ.visual}
+                    data={currentQ.visualData}
+                    compact={true}
+                  />
                 </div>
               )}
 
-              <p className="quiz-prompt-text">{qData.prompt}</p>
+              <p className="quiz-prompt-text" style={{ whiteSpace: 'pre-line' }}>
+                {currentQ.questionText}
+              </p>
             </div>
 
             {/* 4 Answer Options */}
             <div className="quiz-options-grid">
-              {qData.options.map((opt, idx) => {
+              {currentQ.options.map((opt, idx) => {
                 let statusClass = '';
                 if (selectedIdx != null) {
-                  if (idx === qData.correctIndex) statusClass = 'correct';
+                  if (opt === currentQ.correctAnswer) statusClass = 'correct';
                   else if (idx === selectedIdx) statusClass = 'wrong';
                   else statusClass = 'dimmed';
                 }
@@ -268,7 +290,7 @@ export function PracticeQuiz({ worldIndex, state, dispatch, onBackToWorlds }) {
                   <button
                     key={idx}
                     disabled={selectedIdx != null}
-                    onClick={() => handleOptionClick(idx)}
+                    onClick={() => handleOptionClick(opt, idx)}
                     className={`quiz-option-btn ${statusClass}`}
                   >
                     {opt}

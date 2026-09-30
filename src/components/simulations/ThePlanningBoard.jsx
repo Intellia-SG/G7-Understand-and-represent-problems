@@ -159,135 +159,151 @@ export default function ThePlanningBoard({ onComplete, audioEnabled = true }) {
   const isComplete = exploredEnough && isQuestionCorrect;
 
   return (
-    <div className="station-container anim-slide-up">
+    <div className="station-wrap">
+      {/* Header */}
       <div className="station-header">
-        <span className="station-badge">Station 1 · Concept Discovery Lab</span>
-        <h2 className="station-title">The Planning Board 📐</h2>
-        <p className="station-desc">
-          Test drive different planning tools! See how the same client request transforms when viewed as a Part-Whole Bar, Comparison Bar, Table, or Diagram.
-        </p>
-      </div>
-
-      {/* Request selector tabs */}
-      <div className="station-tabs-row">
-        <span className="station-tabs-label">1. Select Client Request:</span>
-        <div className="tab-pill-group">
-          {SAMPLE_REQUESTS.map((r, idx) => (
-            <button
-              key={r.id}
-              className={`station-tab-pill ${selectedReqIdx === idx ? 'active' : ''}`}
-              onClick={() => handleSelectRequest(idx)}
-            >
-              {idx + 1}. {r.title}
-            </button>
-          ))}
+        <h3 className="station-title">📐 Station A: The Planning Board</h3>
+        <div className="station-target-box">
+          <span className="station-target-label">Explore</span>
+          <span className="station-target-num">{viewedCount.size}/4+</span>
         </div>
       </div>
 
-      {/* Story request card */}
-      <div className="station-story-box glass-card">
-        <div className="story-tag">📋 Client Request:</div>
-        <p className="story-text">{req.story}</p>
-      </div>
-
-      {/* Tool switcher tabs */}
-      <div className="station-tabs-row">
-        <span className="station-tabs-label">2. Switch Planning Representation:</span>
-        <div className="tool-pill-group">
-          <button
-            className={`station-tool-pill ${activeTool === 'bar-model-part-whole' ? 'active' : ''}`}
-            onClick={() => handleSelectTool('bar-model-part-whole')}
-          >
-            📊 Part-Whole Bar
-          </button>
-          <button
-            className={`station-tool-pill ${activeTool === 'bar-model-comparison' ? 'active' : ''}`}
-            onClick={() => handleSelectTool('bar-model-comparison')}
-          >
-            ⚖️ Comparison Bar
-          </button>
-          <button
-            className={`station-tool-pill ${activeTool === 'table' ? 'active' : ''}`}
-            onClick={() => handleSelectTool('table')}
-          >
-            📋 Structured Table
-          </button>
-          <button
-            className={`station-tool-pill ${activeTool === 'diagram' ? 'active' : ''}`}
-            onClick={() => handleSelectTool('diagram')}
-          >
-            🗺️ Spatial Diagram
-          </button>
-        </div>
-      </div>
-
-      {/* Active Visual Render */}
-      <div className="station-visual-stage glass-card">
-        <div className="stage-header">
-          <span className="tool-name-indicator">
-            Active View: <strong>{activeTool.replace(/-/g, ' ').toUpperCase()}</strong>
-          </span>
-          {activeTool === req.bestTool && (
-            <span className="optimal-badge">⭐ Recommended Match for This Problem</span>
-          )}
-        </div>
-
-        <div className="visual-display-area">
-          <PlanVisual type={activeTool} data={visualData} compact={false} />
-        </div>
-
-        <div className="tool-explanation-footer">
-          💡 <strong>Tool Insight:</strong> {req.bestReason}
-        </div>
-      </div>
-
-      {/* Confirmation Question Gate */}
-      <div className="confirmation-quiz-card glass-card">
-        <div className="quiz-question-title">
-          🎯 <strong>Discovery Checkpoint:</strong> Which tool is best suited when a request compares two quantities by a ratio (e.g., "Hall A seats 3 times as many as Hall B")?
-        </div>
-
-        <div className="quiz-options-grid">
-          {[
-            { id: 'diagram', label: 'Spatial Diagram' },
-            { id: 'bar-model-comparison', label: 'Comparison Bar Model (with equal units)' },
-            { id: 'plain-guess', label: 'Mental Guesswork' },
-            { id: 'bar-model-part-whole', label: 'Part-Whole Bar with no units' }
-          ].map((opt) => (
-            <button
-              key={opt.id}
-              className={`quiz-option-btn ${confirmAnswer === opt.id ? (opt.id === 'bar-model-comparison' ? 'correct' : 'wrong') : ''}`}
-              onClick={() => handleConfirmAnswer(opt.id)}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-
-        {showFeedback && (
-          <div className={`quiz-feedback-box ${isQuestionCorrect ? 'success' : 'retry'}`}>
-            {isQuestionCorrect
-              ? '✨ Exactly right! A comparison bar model visually shows equal units so you can split totals cleanly.'
-              : '🤔 Not quite. When two quantities are in a ratio (e.g. 3 times as many), equal unit comparison bars make the relationship visible!'}
-          </div>
-        )}
-      </div>
-
-      {/* Completion Banner */}
-      {isComplete && (
-        <div className="station-success anim-bounce-in">
-          <div className="success-content">
-            <span className="success-icon">🎉</span>
-            <div>
-              <h3>Planning Board Mastered!</h3>
-              <p>You have explored how each tool represents client requests and confirmed your toolkit intuition.</p>
+      <div className="station-grid-2col">
+        {/* Left Column: Request & Tool selectors */}
+        <div className="station-col-left">
+          {/* Request selector tabs */}
+          <div className="station-tabs-row">
+            <span className="station-tabs-label">Client Request:</span>
+            <div className="tab-pill-group">
+              {SAMPLE_REQUESTS.map((r, idx) => (
+                <button
+                  key={r.id}
+                  className={`station-tab-pill ${selectedReqIdx === idx ? 'active' : ''}`}
+                  onClick={() => handleSelectRequest(idx)}
+                >
+                  {idx + 1}. {r.title}
+                </button>
+              ))}
             </div>
           </div>
-          <button className="btn btn-primary btn-lg" onClick={onComplete}>
-            Complete Station ✓
-          </button>
+
+          {/* Story request card */}
+          <div className="station-story-box glass-card">
+            <div className="story-tag">📋 Client Request:</div>
+            <p className="story-text">{req.story}</p>
+          </div>
+
+          {/* Tool switcher */}
+          <div className="station-tabs-row">
+            <span className="station-tabs-label">Representation:</span>
+            <div className="tool-pill-group">
+              <button className={`station-tool-pill ${activeTool === 'bar-model-part-whole' ? 'active' : ''}`} onClick={() => handleSelectTool('bar-model-part-whole')}>
+                📊 Part-Whole
+              </button>
+              <button className={`station-tool-pill ${activeTool === 'bar-model-comparison' ? 'active' : ''}`} onClick={() => handleSelectTool('bar-model-comparison')}>
+                ⚖️ Comparison
+              </button>
+              <button className={`station-tool-pill ${activeTool === 'table' ? 'active' : ''}`} onClick={() => handleSelectTool('table')}>
+                📋 Table
+              </button>
+              <button className={`station-tool-pill ${activeTool === 'diagram' ? 'active' : ''}`} onClick={() => handleSelectTool('diagram')}>
+                🗺️ Diagram
+              </button>
+            </div>
+          </div>
+
+          {/* Confirmation Question */}
+          <div className="confirmation-quiz-card glass-card">
+            <div className="quiz-question-title">
+              🎯 Which tool is best for ratio comparisons (e.g., "3 times as many")?
+            </div>
+            <div className="quiz-options-grid">
+              {[
+                { id: 'diagram', label: 'Spatial Diagram' },
+                { id: 'bar-model-comparison', label: 'Comparison Bar' },
+                { id: 'plain-guess', label: 'Mental Guess' },
+                { id: 'bar-model-part-whole', label: 'Part-Whole Bar' }
+              ].map((opt) => (
+                <button
+                  key={opt.id}
+                  className={`quiz-option-btn ${confirmAnswer === opt.id ? (opt.id === 'bar-model-comparison' ? 'correct' : 'wrong') : ''}`}
+                  onClick={() => handleConfirmAnswer(opt.id)}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            {showFeedback && (
+              <div className={`quiz-feedback-box ${isQuestionCorrect ? 'success' : 'retry'}`}>
+                {isQuestionCorrect
+                  ? '✨ Exactly right! Comparison bars make unit relationships visible.'
+                  : '🤔 Not quite. Equal unit comparison bars show ratio splits clearly!'}
+              </div>
+            )}
+          </div>
+          {/* Left Column Actions */}
+          <div className="station-actions">
+            <button
+              className="btn-outline"
+              onClick={() => handleSelectRequest((selectedReqIdx - 1 + SAMPLE_REQUESTS.length) % SAMPLE_REQUESTS.length)}
+            >
+              ← Prev Request
+            </button>
+            <button
+              className="btn-primary"
+              onClick={() => handleSelectRequest((selectedReqIdx + 1) % SAMPLE_REQUESTS.length)}
+            >
+              Next Request →
+            </button>
+          </div>
         </div>
-      )}
+
+        {/* Right Column: Visual Render */}
+        <div className="station-col-right">
+          <div className="station-visual-stage glass-card">
+            <div className="stage-header">
+              <span className="tool-name-indicator">
+                View: <strong>{activeTool.replace(/-/g, ' ').toUpperCase()}</strong>
+              </span>
+              {activeTool === req.bestTool && (
+                <span className="optimal-badge">⭐ Best Match</span>
+              )}
+            </div>
+            <div className="visual-display-area">
+              <PlanVisual type={activeTool} data={visualData} compact={true} />
+            </div>
+            <div className="tool-explanation-footer">
+              💡 <strong>Insight:</strong> {req.bestReason}
+            </div>
+          </div>
+
+          {/* Completion Banner */}
+          {isComplete && (
+            <div className="station-success anim-bounce-in">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span className="success-icon">🎉</span>
+                <p className="station-success-msg">
+                  Planning Board Mastered! You confirmed your toolkit intuition.
+                </p>
+              </div>
+              <div className="station-success-actions">
+                <button className="btn-green" onClick={onComplete}>
+                  Complete Station ✓
+                </button>
+              </div>
+            </div>
+          )}
+
+          {!isComplete && (
+            <div className="station-guide-card">
+              <span className="station-guide-text">
+                Explore 4+ views across requests, then answer the question to complete!
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

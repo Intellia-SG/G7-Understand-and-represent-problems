@@ -1,6 +1,6 @@
 // src/components/simulations/FromRequestToReadyToBook.jsx
 // Station 3: Multi-Step / Composite Construction (TRD §6 / PRD §8.3)
-// 4-step workflow: Given/Unknown -> Filter Noise -> Choose Tool -> State Next-Step Sentence (Do not solve)
+// 4-step workflow: Given/Unknown -> Filter Noise -> Choose Tool -> State Next-Step Sentence
 
 import React, { useState } from 'react';
 import PlanVisual from '../shared/PlanVisual.jsx';
@@ -25,9 +25,10 @@ const FULL_REQUEST = {
   },
   nextStepSentence: '60 × 18 + 150',
   distractorSentences: [
+    '60 × 18 + 150',
     '60 × 18 + 150 + 4.5',
     '60 + 18 + 150',
-    '1,230 (This is evaluated, but we only state the plan sentence!)'
+    '1,230 (This is evaluated early!)'
   ]
 };
 
@@ -57,11 +58,11 @@ export default function FromRequestToReadyToBook({ onComplete, audioEnabled = tr
       setTimeout(() => {
         setCurrentStep(2);
         setStepFeedback(null);
-      }, 1000);
+      }, 700);
     } else {
       setStepFeedback({
         ok: false,
-        msg: 'Please mark the key facts (athletes, per-athlete rate, setup fee) and the unknown question.'
+        msg: 'Please mark the 3 key facts (athletes, $18/rate, $150 fee) and the question.'
       });
     }
   }
@@ -74,15 +75,15 @@ export default function FromRequestToReadyToBook({ onComplete, audioEnabled = tr
 
   function validateStep2() {
     if (filteredNoiseId === 'c2') {
-      setStepFeedback({ ok: true, msg: '🎯 Noise filtered! Ceiling height has zero effect on catering bills.' });
+      setStepFeedback({ ok: true, msg: '🎯 Noise filtered! Ceiling height has zero effect on the catering bill.' });
       setTimeout(() => {
         setCurrentStep(3);
         setStepFeedback(null);
-      }, 1000);
+      }, 700);
     } else {
       setStepFeedback({
         ok: false,
-        msg: 'Look for a number that does not affect the catering cost at all.'
+        msg: 'Look for the number detail that has nothing to do with food or linen costs.'
       });
     }
   }
@@ -95,15 +96,15 @@ export default function FromRequestToReadyToBook({ onComplete, audioEnabled = tr
 
   function validateStep3() {
     if (selectedTool === 'table') {
-      setStepFeedback({ ok: true, msg: '📊 Excellent choice! A table organizes composite per-unit and fixed charges cleanly.' });
+      setStepFeedback({ ok: true, msg: '📊 Excellent! A table organizes composite per-unit and fixed charges cleanly.' });
       setTimeout(() => {
         setCurrentStep(4);
         setStepFeedback(null);
-      }, 1000);
+      }, 700);
     } else {
       setStepFeedback({
         ok: false,
-        msg: 'A multi-tier composite calculation is best organized using a structured table.'
+        msg: 'Multi-part rates ($18/person + $150 fixed) are best organized in a structured table.'
       });
     }
   }
@@ -118,12 +119,12 @@ export default function FromRequestToReadyToBook({ onComplete, audioEnabled = tr
     if (selectedNextStep === FULL_REQUEST.nextStepSentence) {
       setStepFeedback({
         ok: true,
-        msg: '🎉 Perfect! The plan is formulated as "60 × 18 + 150" without solving it, ready to hand off for booking!'
+        msg: '🎉 Perfect! The plan sentence is "60 × 18 + 150" ready to hand off for booking!'
       });
     } else {
       setStepFeedback({
         ok: false,
-        msg: 'Remember: we state the plan sentence without noise and without evaluating early.'
+        msg: 'Remember: state the plan sentence without noise and without solving early.'
       });
     }
   }
@@ -131,174 +132,238 @@ export default function FromRequestToReadyToBook({ onComplete, audioEnabled = tr
   const isComplete = currentStep === 4 && selectedNextStep === FULL_REQUEST.nextStepSentence;
 
   return (
-    <div className="station-container anim-slide-up">
+    <div className="station-wrap">
+      {/* Header */}
       <div className="station-header">
-        <span className="station-badge">Station 3 · Composite Construction</span>
-        <h2 className="station-title">From Request to Ready-to-Book 📝</h2>
-        <p className="station-desc">
-          Take a real client request through the 4-step planning pipeline: Understand facts, filter out noise, choose the representation, and state the next-step number sentence!
-        </p>
-      </div>
-
-      {/* 4 Chained Pipeline Indicators */}
-      <div className="pipeline-steps-bar">
-        {[
-          { num: 1, label: '1. Given & Unknown' },
-          { num: 2, label: '2. Filter Noise' },
-          { num: 3, label: '3. Build Model' },
-          { num: 4, label: '4. Next-Step Sentence' }
-        ].map(s => (
-          <div key={s.num} className={`pipe-step ${currentStep === s.num ? 'active' : (currentStep > s.num ? 'done' : '')}`}>
-            <span className="step-circle">{currentStep > s.num ? '✓' : s.num}</span>
-            <span className="step-name">{s.label}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Main Request Display */}
-      <div className="station-story-box glass-card">
-        <div className="story-tag">📋 Client Case File: {FULL_REQUEST.title}</div>
-        <p className="story-text">"{FULL_REQUEST.fullText}"</p>
-      </div>
-
-      {/* STEP 1: Given & Unknown */}
-      {currentStep === 1 && (
-        <div className="pipeline-step-card glass-card anim-slide-up">
-          <div className="step-card-header">
-            <h4>Step 1: Mark All Relevant Facts and the Target Unknown:</h4>
-            <p>Click on the statements to tag them as relevant clues to solve the problem.</p>
-          </div>
-
-          <div className="clauses-list">
-            {FULL_REQUEST.clauses.map(c => (
-              <button
-                key={c.id}
-                className={`clause-btn ${markedClauses[c.id] ? 'selected' : ''}`}
-                onClick={() => handleToggleClause(c.id)}
-              >
-                <span className="checkbox-icon">{markedClauses[c.id] ? '☑' : '☐'}</span>
-                <span>{c.text}</span>
-              </button>
-            ))}
-          </div>
-
-          <button className="btn btn-primary btn-md mt-4" onClick={validateStep1}>
-            Confirm Facts &amp; Continue →
-          </button>
+        <h3 className="station-title">📝 Station C: Ready-to-Book Pipeline</h3>
+        <div className="station-target-box">
+          <span className="station-target-label">Step:</span>
+          <span className="station-target-num">{currentStep}/4</span>
         </div>
-      )}
+      </div>
 
-      {/* STEP 2: Filter Noise */}
-      {currentStep === 2 && (
-        <div className="pipeline-step-card glass-card anim-slide-up">
-          <div className="step-card-header">
-            <h4>Step 2: Spot and Filter Out the Irrelevant Noise Detail:</h4>
-            <p>Click on the detail that has NO effect on the client's catering bill.</p>
-          </div>
-
-          <div className="clauses-list">
-            {FULL_REQUEST.clauses.map(c => (
-              <button
-                key={c.id}
-                className={`clause-btn ${filteredNoiseId === c.id ? 'noise-highlight' : ''}`}
-                onClick={() => handleSelectNoise(c.id)}
-              >
-                <span className="noise-icon">{filteredNoiseId === c.id ? '🗑️' : '📄'}</span>
-                <span>{c.text}</span>
-              </button>
-            ))}
-          </div>
-
-          <button className="btn btn-primary btn-md mt-4" onClick={validateStep2}>
-            Cross Out Noise &amp; Continue →
-          </button>
-        </div>
-      )}
-
-      {/* STEP 3: Choose Tool */}
-      {currentStep === 3 && (
-        <div className="pipeline-step-card glass-card anim-slide-up">
-          <div className="step-card-header">
-            <h4>Step 3: Choose the Representation Strategy:</h4>
-            <p>Which tool captures both the per-unit athlete cost and the fixed linen fee?</p>
-          </div>
-
-          <div className="tool-pill-group justify-center my-3">
+      <div className="station-grid-2col">
+        {/* Left Column: Pipeline Bar, Story, Active Step Interactive & Actions */}
+        <div className="station-col-left">
+          {/* 4 Pipeline Steps Bar */}
+          <div className="pipeline-steps-bar">
             {[
-              { id: 'bar-model-part-whole', label: 'Part-Whole Bar' },
-              { id: 'table', label: 'Structured Table' },
-              { id: 'diagram', label: 'Spatial Diagram' }
-            ].map(t => (
-              <button
-                key={t.id}
-                className={`station-tool-pill ${selectedTool === t.id ? 'active' : ''}`}
-                onClick={() => handleSelectTool(t.id)}
-              >
-                {t.label}
-              </button>
+              { num: 1, label: '1. Facts' },
+              { num: 2, label: '2. Filter' },
+              { num: 3, label: '3. Tool' },
+              { num: 4, label: '4. Plan' }
+            ].map(s => (
+              <div key={s.num} className={`pipe-step ${currentStep === s.num ? 'active' : (currentStep > s.num ? 'done' : '')}`}>
+                <span className="step-circle">{currentStep > s.num ? '✓' : s.num}</span>
+                <span className="step-name">{s.label}</span>
+              </div>
             ))}
           </div>
 
-          {selectedTool && (
-            <div className="mt-3">
-              <PlanVisual type="table" data={FULL_REQUEST.visualData} compact={false} />
+          {/* Client Case Prompt */}
+          <div className="station-story-box glass-card">
+            <div className="story-tag">📋 Case File: {FULL_REQUEST.title}</div>
+            <p className="story-text">"{FULL_REQUEST.fullText}"</p>
+          </div>
+
+          {/* Active Step Content */}
+          {currentStep === 1 && (
+            <div className="pipeline-step-card glass-card">
+              <div className="step-card-header">
+                <h4>Step 1: Mark Relevant Facts &amp; Unknown Question:</h4>
+                <p>Click items to check off facts needed to calculate the catering bill.</p>
+              </div>
+              <div className="clauses-list">
+                {FULL_REQUEST.clauses.map(c => (
+                  <button
+                    key={c.id}
+                    className={`clause-btn ${markedClauses[c.id] ? 'selected' : ''}`}
+                    onClick={() => handleToggleClause(c.id)}
+                  >
+                    <span className="checkbox-icon">{markedClauses[c.id] ? '☑' : '☐'}</span>
+                    <span>{c.text}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
-          <button className="btn btn-primary btn-md mt-4" onClick={validateStep3}>
-            Confirm Representation &amp; Continue →
-          </button>
-        </div>
-      )}
+          {currentStep === 2 && (
+            <div className="pipeline-step-card glass-card">
+              <div className="step-card-header">
+                <h4>Step 2: Spot and Filter Out the Noise Detail:</h4>
+                <p>Click on the detail that has zero effect on the catering cost.</p>
+              </div>
+              <div className="clauses-list">
+                {FULL_REQUEST.clauses.map(c => (
+                  <button
+                    key={c.id}
+                    className={`clause-btn ${filteredNoiseId === c.id ? 'noise-highlight' : ''}`}
+                    onClick={() => handleSelectNoise(c.id)}
+                  >
+                    <span>{filteredNoiseId === c.id ? '❌' : '🔎'}</span>
+                    <span>{c.text}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
-      {/* STEP 4: Next-Step Number Sentence */}
-      {currentStep === 4 && (
-        <div className="pipeline-step-card glass-card anim-slide-up">
-          <div className="step-card-header">
-            <h4>Step 4: Formulate the Next-Step Number Sentence:</h4>
-            <p>Translate the representation into the mathematical plan (stop at the sentence, do not solve):</p>
-          </div>
+          {currentStep === 3 && (
+            <div className="pipeline-step-card glass-card">
+              <div className="step-card-header">
+                <h4>Step 3: Select Best Representation Tool:</h4>
+                <p>Choose the tool that best structures unit costs + fixed fees.</p>
+              </div>
+              <div className="clauses-list">
+                {[
+                  { id: 'table', label: '📋 Structured Multi-Tier Table (Recommended)' },
+                  { id: 'bar-model-part-whole', label: '📊 Single Part-Whole Bar' },
+                  { id: 'diagram', label: '🗺️ Spatial Room Diagram' }
+                ].map(tool => (
+                  <button
+                    key={tool.id}
+                    className={`clause-btn ${selectedTool === tool.id ? 'selected' : ''}`}
+                    onClick={() => handleSelectTool(tool.id)}
+                  >
+                    <span>{selectedTool === tool.id ? '✓' : '○'}</span>
+                    <span>{tool.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
-          <div className="quiz-options-grid my-3">
-            {[FULL_REQUEST.nextStepSentence, ...FULL_REQUEST.distractorSentences].map((sentence, idx) => (
-              <button
-                key={idx}
-                className={`quiz-option-btn ${selectedNextStep === sentence ? 'active' : ''}`}
-                onClick={() => handleSelectNextStep(sentence)}
-              >
-                {sentence}
+          {currentStep === 4 && (
+            <div className="pipeline-step-card glass-card">
+              <div className="step-card-header">
+                <h4>Step 4: Select Next-Step Plan Sentence:</h4>
+                <p>Pick the numerical sentence that states the plan without solving early.</p>
+              </div>
+              <div className="clauses-list">
+                {FULL_REQUEST.distractorSentences.map(sent => (
+                  <button
+                    key={sent}
+                    className={`clause-btn ${selectedNextStep === sent ? 'selected' : ''}`}
+                    onClick={() => handleSelectNextStep(sent)}
+                  >
+                    <span>{selectedNextStep === sent ? '✓' : '○'}</span>
+                    <span>{sent}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Action Row */}
+          <div className="station-actions">
+            {currentStep > 1 && (
+              <button className="btn-outline" onClick={() => setCurrentStep(prev => prev - 1)}>
+                ← Back
               </button>
-            ))}
+            )}
+            {currentStep === 1 && (
+              <button className="btn-primary" onClick={validateStep1}>
+                Confirm Facts →
+              </button>
+            )}
+            {currentStep === 2 && (
+              <button className="btn-primary" onClick={validateStep2}>
+                Filter Noise →
+              </button>
+            )}
+            {currentStep === 3 && (
+              <button className="btn-primary" onClick={validateStep3}>
+                Confirm Tool →
+              </button>
+            )}
+            {currentStep === 4 && (
+              <button className="btn-primary" onClick={validateStep4}>
+                Verify Sentence 🔍
+              </button>
+            )}
           </div>
-
-          <button className="btn btn-primary btn-md mt-4" onClick={validateStep4}>
-            Submit Plan Sentence 🚀
-          </button>
         </div>
-      )}
 
-      {/* Feedback banner */}
-      {stepFeedback && (
-        <div className={`quiz-feedback-box ${stepFeedback.ok ? 'success' : 'retry'}`}>
-          {stepFeedback.msg}
-        </div>
-      )}
-
-      {/* Completion */}
-      {isComplete && (
-        <div className="station-success anim-bounce-in">
-          <div className="success-content">
-            <span className="success-icon">🎖️</span>
-            <div>
-              <h3>Booking Ready! Full Pipeline Executed!</h3>
-              <p>You understood the facts, crossed out noise, built the model, and stated the exact next-step number sentence.</p>
+        {/* Right Column: Accumulated Plan Board & Visual Stage */}
+        <div className="station-col-right">
+          {/* Accumulated Plan Summary Board */}
+          <div className="plan-summary-board glass-card">
+            <div className="summary-board-title">📋 Case Plan in Progress</div>
+            <div className="summary-item">
+              <span>📌</span>
+              <div>
+                <strong>Givens:</strong>{' '}
+                {currentStep > 1 ? '60 athletes, $18/athlete, $150 fixed fee' : 'Pending selection...'}
+              </div>
+            </div>
+            <div className="summary-item">
+              <span>🗑️</span>
+              <div>
+                <strong>Noise Filtered:</strong>{' '}
+                {currentStep > 2 ? '4.5m hall ceiling height removed' : 'Pending filter...'}
+              </div>
+            </div>
+            <div className="summary-item">
+              <span>📊</span>
+              <div>
+                <strong>Chosen Model:</strong>{' '}
+                {currentStep > 3 ? 'Structured Table' : 'Pending tool...'}
+              </div>
+            </div>
+            <div className="summary-item">
+              <span>✏️</span>
+              <div>
+                <strong>Plan Sentence:</strong>{' '}
+                {selectedNextStep || 'Pending final formulation...'}
+              </div>
             </div>
           </div>
-          <button className="btn btn-primary btn-lg" onClick={onComplete}>
-            Complete Station ✓
-          </button>
+
+          {/* Visual Model Stage */}
+          <div className="station-visual-stage glass-card">
+            <div className="stage-header">
+              <span className="tool-name-indicator">
+                Model: <strong>TABLE REPRESENTATION</strong>
+              </span>
+              <span className="optimal-badge">Ready-to-Book</span>
+            </div>
+            <div className="visual-display-area">
+              <PlanVisual type="table" data={FULL_REQUEST.visualData} compact={true} />
+            </div>
+          </div>
+
+          {/* Feedback */}
+          {stepFeedback && (
+            <div className={`quiz-feedback-box ${stepFeedback.ok ? 'success' : 'retry'}`}>
+              {stepFeedback.msg}
+            </div>
+          )}
+
+          {/* Completion Banner */}
+          {isComplete ? (
+            <div className="station-success anim-bounce-in">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span className="success-icon">🎉</span>
+                <p className="station-success-msg">
+                  Pipeline Complete! The client request is ready to book without errors.
+                </p>
+              </div>
+              <div className="station-success-actions">
+                <button className="btn-green" onClick={onComplete}>
+                  Complete Station ✓
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="station-guide-card">
+              <span className="station-guide-text">
+                Follow all 4 steps to turn the client request into a ready-to-book plan!
+              </span>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

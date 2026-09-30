@@ -3,7 +3,7 @@ import React from 'react';
 import './Mascot.css';
 
 export default function Mascot({ mood = 'curious', message, size = 'md' }) {
-  const emoji = mood === 'celebrate' ? '🎉' : mood === 'thinking' ? '🤔' : '🕵️';
+  const emoji = '🐝';
 
   return (
     <div className={`mascot-row-wrap mascot-${size}`}>

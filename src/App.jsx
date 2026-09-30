@@ -1,23 +1,31 @@
 // src/App.jsx
 import React, { useReducer, useEffect, useCallback } from 'react';
 import './App.css';
-import IntroScreen from './components/IntroScreen.jsx';
-import ProgressMap from './components/ProgressMap.jsx';
-import FloatingNumbers from './components/shared/FloatingNumbers.jsx';
-import WonderPhase from './components/phases/WonderPhase.jsx';
-import StoryPhase from './components/phases/StoryPhase.jsx';
-import SimulatePhase from './components/phases/SimulatePhase.jsx';
-import PracticePhase from './components/phases/PracticePhase.jsx';
-import ReflectPhase from './components/phases/ReflectPhase.jsx';
-import { checkBadges } from './utils/badgeEngine.js';
+import IntroScreen      from './components/IntroScreen.jsx';
+import ProgressMap      from './components/ProgressMap.jsx';
+import FloatingNumbers  from './components/shared/FloatingNumbers.jsx';
+import WonderPhase      from './components/phases/WonderPhase.jsx';
+import StoryPhase       from './components/phases/StoryPhase.jsx';
+import SimulatePhase    from './components/phases/SimulatePhase.jsx';
+import PlayPhase        from './components/phases/PlayPhase.jsx';
+import ReflectPhase     from './components/phases/ReflectPhase.jsx';
+import { generateSessionQuestions } from './utils/shuffle.js';
+import { checkBadges }  from './utils/badgeEngine.js';
+import { calcXP, calcStars } from './utils/scoring.js';
+import questionBank     from './data/questionBank.js';
 
 const initialState = {
   phase: 'intro',
-  savedPhase: null,
   storyPanel: 0,
   currentSimStation: 0,
-  simStationsComplete: [false, false, false],
-  worldResults: Array(10).fill(null),
+  simStationsComplete: [false, false, false, false],
+  questionSet: [],
+  currentQuestion: 0,
+  currentDistrict: 0,
+  districtScores: Array(10).fill(null),
+  districtCorrect: Array(10).fill(0),
+  hintsUsed: 0,
+  attemptCount: 0,
   xp: 0,
   totalStars: 0,
   streak: 0,
@@ -25,28 +33,17 @@ const initialState = {
   badges: [],
   phaseComplete: { wonder: false, story: false, simulate: false, play: false, reflect: false },
   audioEnabled: true,
+  showFeedback: null, // null | 'correct' | 'incorrect'
+  feedbackMsg: '',
 };
 
 function reducer(state, action) {
   switch (action.type) {
-    case 'START_JOURNEY':
-      return {
-        ...state,
-        phase: 'wonder',
-        savedPhase: 'wonder',
-      };
-
-    case 'SET_PHASE': {
-      const nextPhase = action.payload === 'practice' ? 'play' : action.payload;
-      return {
-        ...state,
-        phase: nextPhase,
-        savedPhase: nextPhase !== 'intro' ? nextPhase : state.savedPhase,
-      };
-    }
+    case 'SET_PHASE':
+      return { ...state, phase: action.payload };
 
     case 'NEXT_STORY_PANEL':
-      if (state.storyPanel >= 7) {
+      if (state.storyPanel >= 3) {
         return {
           ...state,
           phase: 'simulate',
@@ -60,7 +57,7 @@ function reducer(state, action) {
       return { ...state, storyPanel: state.storyPanel - 1 };
 
     case 'ADVANCE_SIM_STATION':
-      return { ...state, currentSimStation: Math.min(state.currentSimStation + 1, 2) };
+      return { ...state, currentSimStation: Math.min(state.currentSimStation + 1, 3) };
 
     case 'PREV_SIM_STATION':
       return { ...state, currentSimStation: Math.max(state.currentSimStation - 1, 0) };
@@ -76,28 +73,100 @@ function reducer(state, action) {
       };
     }
 
-    case 'RECORD_WORLD_SCORE': {
-      const { worldIndex, stars } = action.payload;
-      const nextResults = [...state.worldResults];
-      nextResults[worldIndex] = Math.max(nextResults[worldIndex] || 0, stars);
-
-      const totalStars = nextResults.reduce((a, b) => a + (b || 0), 0);
-      const isPracticeDone = nextResults.every(r => r != null && r > 0);
-
+    case 'LOAD_QUESTIONS':
       return {
         ...state,
-        worldResults: nextResults,
-        totalStars,
-        ...(isPracticeDone ? { phaseComplete: { ...state.phaseComplete, play: true } } : {}),
+        questionSet: action.payload,
+        currentQuestion: 0,
+        currentDistrict: 0,
+        districtCorrect: Array(10).fill(0),
+        districtScores: Array(10).fill(null),
+        streak: 0,
+      };
+
+    case 'ANSWER_CORRECT': {
+      const newStreak = state.streak + 1;
+      const maxStreak = Math.max(state.maxStreak, newStreak);
+      const xpGained = calcXP(state.attemptCount + 1, state.hintsUsed, newStreak);
+      const newXP = state.xp + xpGained;
+      const districtCorrect = [...state.districtCorrect];
+      districtCorrect[state.currentDistrict] = (districtCorrect[state.currentDistrict] || 0) + 1;
+      return {
+        ...state,
+        xp: newXP,
+        streak: newStreak,
+        maxStreak,
+        districtCorrect,
+        hintsUsed: 0,
+        attemptCount: 0,
+        showFeedback: 'correct',
       };
     }
 
-    case 'ADD_XP':
+    case 'ANSWER_INCORRECT':
       return {
         ...state,
-        xp: state.xp + action.payload,
-        maxStreak: Math.max(state.maxStreak, state.streak),
+        streak: 0,
+        attemptCount: state.attemptCount + 1,
+        showFeedback: 'incorrect',
+        feedbackMsg: action.payload || '',
       };
+
+    case 'USE_HINT':
+      return { ...state, hintsUsed: state.hintsUsed + 1 };
+
+    case 'CLEAR_FEEDBACK':
+      return { ...state, showFeedback: null, feedbackMsg: '' };
+
+    case 'PREV_QUESTION':
+      if (state.currentQuestion > 0 && state.currentQuestion % 10 !== 0) {
+        return {
+          ...state,
+          currentQuestion: state.currentQuestion - 1,
+          showFeedback: null,
+          feedbackMsg: '',
+          hintsUsed: 0,
+          attemptCount: 0,
+        };
+      }
+      return state;
+
+    case 'NEXT_QUESTION': {
+      const nextQ = state.currentQuestion + 1;
+      const distIdx = Math.floor(nextQ / 10);
+      const isNewDistrict = nextQ % 10 === 0 && nextQ < 100;
+      const districtScores = [...state.districtScores];
+
+      if (isNewDistrict || nextQ >= 100) {
+        const justDone = state.currentDistrict;
+        districtScores[justDone] = state.districtCorrect[justDone] || 0;
+      }
+      const newDistrict = Math.min(distIdx, 9);
+
+      if (nextQ >= 100) {
+        const totalStars = districtScores.reduce((s, sc) => {
+          if (sc === null) return s;
+          return s + calcStars(sc);
+        }, 0);
+
+        return {
+          ...state,
+          currentQuestion: nextQ,
+          districtScores,
+          phaseComplete: { ...state.phaseComplete, play: true },
+          totalStars,
+        };
+      }
+
+      return {
+        ...state,
+        currentQuestion: nextQ,
+        currentDistrict: newDistrict,
+        districtScores,
+        attemptCount: 0,
+        hintsUsed: 0,
+      };
+    }
 
     case 'UNLOCK_BADGE': {
       if (state.badges.includes(action.payload)) return state;
@@ -105,10 +174,7 @@ function reducer(state, action) {
     }
 
     case 'COMPLETE_PHASE':
-      return {
-        ...state,
-        phaseComplete: { ...state.phaseComplete, [action.payload]: true },
-      };
+      return { ...state, phaseComplete: { ...state.phaseComplete, [action.payload]: true } };
 
     case 'TOGGLE_AUDIO':
       return { ...state, audioEnabled: !state.audioEnabled };
@@ -116,6 +182,7 @@ function reducer(state, action) {
     case 'RESET_SESSION':
       return {
         ...initialState,
+        questionSet: generateSessionQuestions(questionBank),
         audioEnabled: state.audioEnabled,
       };
 
@@ -127,11 +194,16 @@ function reducer(state, action) {
 export function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  // Initialize questions on session load
+  useEffect(() => {
+    dispatch({ type: 'LOAD_QUESTIONS', payload: generateSessionQuestions(questionBank) });
+  }, []);
+
   // Check and unlock badges reactively
   useEffect(() => {
     const newBadges = checkBadges(state);
     newBadges.forEach((id) => dispatch({ type: 'UNLOCK_BADGE', payload: id }));
-  }, [state.phaseComplete, state.simStationsComplete, state.worldResults, state.maxStreak, state.xp]);
+  }, [state.phaseComplete, state.simStationsComplete, state.districtScores, state.maxStreak, state.currentQuestion, state.districtCorrect]);
 
   const goHome = useCallback(() => {
     dispatch({ type: 'SET_PHASE', payload: 'intro' });
@@ -141,62 +213,36 @@ export function App() {
     <div className="app-shell">
       <FloatingNumbers />
 
-      {/* Header with Top-Left Audio Toggle & Home Button + Center Progress Map */}
       {state.phase !== 'intro' && (
         <header className="app-header">
-          {/* Top-Left Controls: Audio Toggle and Home Button */}
-          <div className="top-left-controls">
-            <button
-              type="button"
-              className={`audio-toggle-btn ${!state.audioEnabled ? 'muted' : ''}`}
-              onClick={() => dispatch({ type: 'TOGGLE_AUDIO' })}
-              aria-label={state.audioEnabled ? 'Mute audio' : 'Unmute audio'}
-              title={state.audioEnabled ? 'Audio is ON (Click to Mute)' : 'Audio is OFF (Click to Unmute)'}
-            >
-              <span className="audio-icon">{state.audioEnabled ? '🔊' : '🔇'}</span>
-              <span className="audio-text">{state.audioEnabled ? 'Audio ON' : 'Audio OFF'}</span>
-            </button>
+          <button className="home-btn" onClick={goHome} aria-label="Home">
+            <span className="home-icon">🏠</span>
+            <span className="home-text">Home</span>
+          </button>
 
-            <button className="home-btn" onClick={goHome} aria-label="Home" title="Return to Intro">
-              <span className="home-icon">🏠</span>
-              <span className="home-text">Home</span>
-            </button>
-          </div>
-
-          {/* Center Progress Map */}
           <div className="header-progress">
             <ProgressMap
               currentPhase={state.phase}
               phaseComplete={state.phaseComplete}
+              audioEnabled={state.audioEnabled}
+              onToggleAudio={() => dispatch({ type: 'TOGGLE_AUDIO' })}
               onSelectPhase={(pKey) => dispatch({ type: 'SET_PHASE', payload: pKey })}
             />
           </div>
         </header>
       )}
 
-      {/* Main Content Area */}
       <main className="phase-content">
-        {state.phase === 'intro' && (
-          <IntroScreen state={state} dispatch={dispatch} />
-        )}
-        {state.phase === 'wonder' && (
-          <WonderPhase state={state} dispatch={dispatch} />
-        )}
-        {state.phase === 'story' && (
-          <StoryPhase state={state} dispatch={dispatch} />
-        )}
-        {state.phase === 'simulate' && (
-          <SimulatePhase state={state} dispatch={dispatch} />
-        )}
-        {state.phase === 'play' && (
-          <PracticePhase state={state} dispatch={dispatch} />
-        )}
-        {state.phase === 'reflect' && (
-          <ReflectPhase state={state} dispatch={dispatch} />
-        )}
+        {state.phase === 'intro'    && <IntroScreen   state={state} dispatch={dispatch} />}
+        {state.phase === 'wonder'   && <WonderPhase   state={state} dispatch={dispatch} />}
+        {state.phase === 'story'    && <StoryPhase    state={state} dispatch={dispatch} />}
+        {state.phase === 'simulate' && <SimulatePhase state={state} dispatch={dispatch} />}
+        {state.phase === 'play'     && <PlayPhase     state={state} dispatch={dispatch} />}
+        {state.phase === 'reflect'  && <ReflectPhase  state={state} dispatch={dispatch} />}
       </main>
     </div>
   );
 }
 
 export default App;
+

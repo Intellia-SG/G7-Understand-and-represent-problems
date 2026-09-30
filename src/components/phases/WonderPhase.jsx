@@ -5,7 +5,7 @@ import Mascot from '../shared/Mascot.jsx';
 import { useAudio } from '../../hooks/useAudio.js';
 import { wonderNarration } from '../../utils/narration.js';
 
-const PARTICLES = ['🔍', '📊', 'b', 'x', '11', '⭐', '💡', '✨', '📝', '❓'];
+const PARTICLES = ['📋', '📊', '🐝', '🏷️', '⭐', '🏆', '🎯', '💡', '⚖️', '✨'];
 
 export default function WonderPhase({ state, dispatch }) {
   const { narrate, stopAll } = useAudio(state?.audioEnabled ?? true);
@@ -24,7 +24,7 @@ export default function WonderPhase({ state, dispatch }) {
 
   return (
     <div className="wonder-wrap">
-      {/* Floating background particles */}
+      {/* Floating particles */}
       <div className="wonder-particles" aria-hidden="true">
         {PARTICLES.map((p, i) => (
           <span
@@ -45,25 +45,25 @@ export default function WonderPhase({ state, dispatch }) {
       <div className="wonder-content anim-slide-up">
         {/* Main hook card */}
         <div className="wonder-card glass-card">
-          <div className="wonder-stadium-icon" aria-hidden="true">🔍</div>
-          <h1 className="wonder-title headline">Can a Quick Sketch Beat a Quick Guess?</h1>
+          <div className="wonder-stadium-icon" aria-hidden="true">📋</div>
+          <h1 className="wonder-title">The Big Request Mystery!</h1>
 
           <div className="wonder-number-display">
-            <span className="number-display wonder-num">Book + Bookmark = $11 · Book = Bookmark + $10</span>
+            <span className="wonder-num">40 × $6 + 8 × $25 ➔ Total Bill? ➔ Ignore 24°C!</span>
           </div>
 
           <div className="wonder-question-card">
-            <p className="body-text wonder-q">
-              A book and a bookmark cost <strong className="wonder-em">$11 together</strong>, and the book costs exactly <strong className="wonder-em">$10 more</strong> than the bookmark.
+            <p className="wonder-q">
+              A client request lands on your desk: <strong className="wonder-em">40 dining chairs at $6 each</strong>, <strong className="wonder-em">8 banquet tables at $25 each</strong>, and an ambient room temperature of 24°C.
             </p>
-            <p className="body-text wonder-q">
-              Most people blurt out that the bookmark costs <span className="wonder-highlight">$1</span>, but a quick bar sketch reveals something surprising! How can we represent it to get the right answer every time?
+            <p className="wonder-q">
+              Can you tell what is <span className="wonder-highlight">given information</span> and what is the <span className="wonder-highlight">target unknown</span>, before anyone starts booking?
             </p>
           </div>
 
           {/* Mascot */}
           <div className="wonder-mascot-row">
-            <Mascot mood="curious" message="Let's investigate how sketches and equations uncover the truth!" size="sm" />
+            <Mascot mood="curious" message="Bzz! Great planners never calculate until they understand the facts and filter the noise!" size="sm" />
           </div>
 
           <button className="btn btn-primary btn-lg wonder-cta" onClick={handleInvestigate}>

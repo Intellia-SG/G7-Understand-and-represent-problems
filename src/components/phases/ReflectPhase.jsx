@@ -1,52 +1,56 @@
 // src/components/phases/ReflectPhase.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import confetti from 'canvas-confetti';
 import './ReflectPhase.css';
 import Mascot from '../shared/Mascot.jsx';
-import { useAudio } from '../../hooks/useAudio.js';
-import { reflectNarration } from '../../utils/narration.js';
 import { BADGES } from '../../utils/badgeEngine.js';
+import { calcStars } from '../../utils/scoring.js';
+import { useAudio } from '../../hooks/useAudio.js';
+import { reflectNarration, reflectCompleteNarration } from '../../utils/narration.js';
+import { generateSessionQuestions } from '../../utils/shuffle.js';
+import questionBank from '../../data/questionBank.js';
 
 const REFLECT_QUESTIONS = [
   {
-    q: "1. When reading a word problem, what are the three detective questions?",
+    q: "1. Before drawing any bar or table, what is the single most essential first step?",
     options: [
-      "What is Given? What is Asked? How are quantities Related?",
-      "How long is the problem? How many words does it have?",
-      "Can I guess the answer right away?"
+      "Identify what is given and clearly state the unknown you are asked to find",
+      "Pick random numbers from the text and start calculating immediately",
+      "Count the number of words in the client's problem statement",
     ],
-    correct: 0
+    correct: 0,
   },
   {
-    q: "2. In an algebraic equation like 2n + 3 = 17, what does the letter 'n' represent?",
+    q: "2. Why is filtering out irrelevant information critical in problem representation?",
     options: [
-      "A variable that stands for the mystery unknown quantity",
-      "Just the name of a character in the story",
-      "A fixed number that is always 1"
+      "Because extra numbers (like room temperatures or start times) corrupt your math model",
+      "Because word problems can only ever have exactly two numbers",
+      "Because calculators stop working if extra details exist",
     ],
-    correct: 0
+    correct: 0,
   },
   {
-    q: "3. What is the golden final step after calculating an answer?",
+    q: "3. When should an event planner bridge from a bar model to algebra (let n = ...)?",
     options: [
-      "Check if the answer fits all the clues and makes sense in the story",
-      "Immediately close the book without reading it back",
-      "Add 10 to the answer just in case"
+      "When the unknown isn't a clean part of a whole, but appears on both sides of a relationship",
+      "Whenever the total event budget is greater than $50",
+      "Never — bar models must always be forced on every single problem",
     ],
-    correct: 0
-  }
+    correct: 0,
+  },
 ];
 
 export default function ReflectPhase({ state, dispatch }) {
-  const [answers, setAnswers] = useState({});
-  const [journal, setJournal] = useState('');
+  const [answers, setAnswers]     = useState({});
+  const [journal, setJournal]     = useState('');
   const [submitted, setSubmitted] = useState(false);
   const { narrate, stopAll, sounds } = useAudio(state?.audioEnabled ?? true);
   const narrated = useRef(false);
 
-  const totalStars = state?.worldResults?.reduce((a, b) => a + (b || 0), 0) || 0;
-  const xp = state?.xp || 0;
-  const bestStreak = state?.maxStreak || 0;
+  const totalCorrect = state?.districtCorrect?.reduce((s, c) => s + (c || 0), 0) || 0;
+  const totalStars   = state?.districtScores?.reduce((s, sc) => {
+    if (sc === null || sc === undefined) return s;
+    return s + calcStars(sc);
+  }, 0) || 0;
 
   useEffect(() => {
     if (!narrated.current) {
@@ -66,13 +70,12 @@ export default function ReflectPhase({ state, dispatch }) {
     setSubmitted(true);
     stopAll();
     sounds.badge();
-    try {
-      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
-    } catch { /* ignore */ }
+    narrate(reflectCompleteNarration());
   }
 
   function playAgain() {
     dispatch({ type: 'RESET_SESSION' });
+    dispatch({ type: 'LOAD_QUESTIONS', payload: generateSessionQuestions(questionBank) });
     dispatch({ type: 'SET_PHASE', payload: 'intro' });
   }
 
@@ -83,46 +86,64 @@ export default function ReflectPhase({ state, dispatch }) {
       <div className="reflect-wrap">
         <div className="trophy-card glass-card anim-bounce-in">
           <div className="trophy-icon">🏆</div>
-          <h1 className="trophy-title headline">Grand Problem Solving Master!</h1>
-          <p className="trophy-sub subheadline">
-            Understand &amp; Represent Problems Mastery Complete ✅
+          <h1 className="trophy-title headline">You're a Master Event Director!</h1>
+          <p className="trophy-sub subheadline" style={{ color: 'var(--gold)' }}>
+            Problem Understanding &amp; Representation Mastery Complete ✅
           </p>
 
-          <div className="trophy-stats-grid">
-            <div className="trophy-stat-item">
-              <span className="trophy-stat-val">{xp}</span>
-              <span className="trophy-stat-lbl">Total XP Earned</span>
+          {/* Stats Breakdown */}
+          <div className="trophy-stats">
+            <div className="trophy-stat">
+              <span className="stat-value number-display">{totalCorrect}</span>
+              <span className="stat-label label-text">/ 100 Questions</span>
             </div>
-            <div className="trophy-stat-item">
-              <span className="trophy-stat-val">{totalStars} / 30</span>
-              <span className="trophy-stat-lbl">Stars Collected</span>
+            <div className="trophy-stat">
+              <span className="stat-value number-display">{state?.xp || 0}</span>
+              <span className="stat-label label-text">XP Earned ⭐</span>
             </div>
-            <div className="trophy-stat-item">
-              <span className="trophy-stat-val">{bestStreak}x</span>
-              <span className="trophy-stat-lbl">Best Streak</span>
-            </div>
-          </div>
-
-          <div className="flex flex-col items-center gap-2 my-2">
-            <span className="text-sm font-bold text-amber-300">Badges Unlocked:</span>
-            <div className="flex gap-3 flex-wrap justify-center">
-              {earnedBadges.length > 0 ? (
-                earnedBadges.map(b => (
-                  <span key={b.id} className="bg-white/10 px-3 py-1 rounded-full text-sm font-bold border border-amber-400/40" title={b.description}>
-                    {b.icon} {b.label}
-                  </span>
-                ))
-              ) : (
-                <span className="bg-white/10 px-3 py-1 rounded-full text-sm font-bold border border-amber-400/40">
-                  🏆 Master Detective
-                </span>
-              )}
+            <div className="trophy-stat">
+              <span className="stat-value number-display">{state?.maxStreak || 0}</span>
+              <span className="stat-label label-text">Best Streak 🔥</span>
             </div>
           </div>
 
-          <button className="btn btn-primary btn-lg mt-4" onClick={playAgain}>
-            Play Journey Again 🚀
-          </button>
+          {/* Stars */}
+          <div className="trophy-stars">
+            {[...Array(Math.min(Math.max(totalStars, 3), 30))].map((_, i) => (
+              <span key={i} style={{ fontSize: '1.3rem', animationDelay: `${i * 0.05}s` }} className="anim-bounce-in">
+                ⭐
+              </span>
+            ))}
+          </div>
+
+          {/* Badges */}
+          {earnedBadges.length > 0 && (
+            <div className="trophy-badges">
+              <p className="label-text" style={{ color: 'var(--text-muted)', textAlign: 'center', marginBottom: '6px' }}>
+                Badges Unlocked
+              </p>
+              <div className="badge-list">
+                {earnedBadges.map(b => (
+                  <div key={b.id} className="badge-pill">
+                    <span style={{ fontSize: '1.3rem' }}>{b.icon}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                      <span style={{ fontWeight: 800 }}>{b.label}</span>
+                      <span className="badge-desc label-text">{b.description}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="trophy-actions">
+            <button className="btn btn-primary trophy-cta" onClick={playAgain}>
+              🔄 Play Again
+            </button>
+            <button className="btn btn-outline" onClick={() => dispatch({ type: 'SET_PHASE', payload: 'intro' })}>
+              🏠 Home
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -131,68 +152,32 @@ export default function ReflectPhase({ state, dispatch }) {
   return (
     <div className="reflect-wrap">
       <div className="reflect-card glass-card anim-slide-up">
-        {/* Header */}
         <div className="reflect-header">
-          <span className="reflect-badge">PHASE 05 · REFLECT &amp; SCOREBOARD</span>
-          <h1 className="reflect-title">Detective Case Reflection</h1>
-          <p className="body-text text-secondary max-w-md">
-            Consolidate what you've learned about uncovering clues, building bar models, tables, and equations!
-          </p>
+          <span className="reflect-badge">📓 Learning Reflection &amp; Scorecard</span>
+          <h2 className="reflect-title subheadline">Reflect on Your Planning Journey</h2>
         </div>
 
-        {/* 3 Stats Overview Cards */}
-        <div className="reflect-stats-row">
-          <div className="reflect-stat-box">
-            <span className="text-2xl mb-1">✨</span>
-            <span className="reflect-stat-val">{xp}</span>
-            <span className="reflect-stat-lbl">Total XP</span>
-          </div>
+        <Mascot mood="curious" message="Let's check your key takeaways and review your scorecard!" size="sm" />
 
-          <div className="reflect-stat-box">
-            <span className="text-2xl mb-1">⭐</span>
-            <span className="reflect-stat-val">{totalStars} / 30</span>
-            <span className="reflect-stat-lbl">Total Stars</span>
-          </div>
-
-          <div className="reflect-stat-box">
-            <span className="text-2xl mb-1">🔥</span>
-            <span className="reflect-stat-val">{bestStreak}x</span>
-            <span className="reflect-stat-lbl">Best Streak</span>
-          </div>
-        </div>
-
-        {/* 10 Worlds Scoreboard */}
-        <div className="flex flex-col gap-1 w-full">
-          <span className="text-xs font-bold text-amber-400 uppercase tracking-wider text-center">
-            Practice World Results
-          </span>
-          <div className="reflect-worlds-row">
-            {(state?.worldResults || Array(10).fill(null)).map((res, i) => (
-              <div key={i} className="reflect-world-tile">
-                <span className="text-slate-300">W{i + 1}</span>
-                <span className="text-amber-400 mt-1">{res != null && res > 0 ? `${res}★` : '—'}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Reflection Questions */}
+        {/* Self-assessment Concept Check */}
         <div className="reflect-quiz-container">
-          <h3 className="font-display font-900 text-lg text-white">Review Challenge:</h3>
-
-          {REFLECT_QUESTIONS.map((rq, qIdx) => (
+          <p className="body-text" style={{ color: 'var(--gold)', fontWeight: 800 }}>
+            🧠 Problem Representation Concept Check:
+          </p>
+          {REFLECT_QUESTIONS.map((qObj, qIdx) => (
             <div key={qIdx} className="reflect-q-item">
-              <p className="reflect-q-text">{rq.q}</p>
+              <p className="reflect-q-text">{qObj.q}</p>
               <div className="reflect-opt-row">
-                {rq.options.map((opt, optIdx) => {
-                  const isSelected = answers[qIdx] === optIdx;
+                {qObj.options.map((opt, oIdx) => {
+                  const isSelected = answers[qIdx] === oIdx;
                   return (
                     <button
-                      key={optIdx}
-                      className={`reflect-opt-btn ${isSelected ? 'selected' : ''}`}
-                      onClick={() => handleSelectOption(qIdx, optIdx)}
+                      key={oIdx}
+                      className={`option-btn ${isSelected ? 'selected' : ''}`}
+                      onClick={() => handleSelectOption(qIdx, oIdx)}
+                      style={{ textAlign: 'left', minHeight: '44px', fontSize: '1rem', padding: '10px 14px' }}
                     >
-                      {opt}
+                      <span>{opt}</span>
                     </button>
                   );
                 })}
@@ -201,20 +186,52 @@ export default function ReflectPhase({ state, dispatch }) {
           ))}
         </div>
 
-        {/* Journal Thought */}
-        <div className="reflect-journal-section">
-          <Mascot mood="thinking" message="What was your favorite strategy: bar models, tables, or equations?" size="sm" />
+        {/* Journal Entry */}
+        <div className="reflect-journal">
+          <label className="reflect-label body-text" htmlFor="journal-input">
+            Write one key representation rule or heuristic you mastered:
+          </label>
           <textarea
+            id="journal-input"
             className="reflect-textarea"
-            placeholder="Type your detective notes here (optional)..."
+            placeholder="e.g. Always identify Given and Unknown before drawing, and when bars won't balance, let n = unknown!"
             value={journal}
             onChange={e => setJournal(e.target.value)}
+            rows={2}
+            aria-label="Learning journal entry"
           />
+
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
+            <span style={{ fontSize: '0.8rem', color: '#a0a0b8', alignSelf: 'center' }}>Quick insert:</span>
+            {[
+              'Understand before you plan (Given + Unknown)',
+              'Filter noise before calculating',
+              'When bars won\'t balance, switch to algebra (let n = ...)',
+            ].map(ex => (
+              <button
+                key={ex}
+                type="button"
+                onClick={() => setJournal(ex)}
+                className="quick-insert-btn"
+              >
+                ✨ {ex}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <button className="btn btn-primary btn-lg self-center" onClick={handleSubmit}>
-          Complete Journey 🏆
-        </button>
+        {/* Performance Snapshot */}
+        <div className="reflect-stats">
+          <div className="reflect-stat-pill">⭐ {state?.xp || 0} XP Earned</div>
+          <div className="reflect-stat-pill">✅ {totalCorrect}/100 Correct</div>
+          <div className="reflect-stat-pill">🔥 Best Streak: {state?.maxStreak || 0}</div>
+        </div>
+
+        <div className="reflect-actions">
+          <button className="btn btn-primary btn-lg" onClick={handleSubmit}>
+            🌟 Submit Reflection &amp; View Trophy Scorecard!
+          </button>
+        </div>
       </div>
     </div>
   );

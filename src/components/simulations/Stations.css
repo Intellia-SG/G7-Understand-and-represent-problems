@@ -1,0 +1,851 @@
+/* src/components/simulations/Stations.css */
+
+/* ─── Main Station Container (Single Viewport Fit) ───────────────────────── */
+.station-wrap {
+  flex: 1;
+  min-height: 0;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(6px, 1vh, 10px) clamp(8px, 1.2vw, 16px);
+  gap: clamp(4px, 0.8vh, 8px);
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* ─── Station Header & Badges ───────────────────────────────────────────── */
+.station-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 8px;
+  flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 2px;
+}
+
+.station-title {
+  color: #fcd34d;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1.05rem, 1.3vw, 1.3rem);
+  line-height: 1.2;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.station-target-box {
+  background: rgba(245, 158, 11, 0.22);
+  border: 1.5px solid #f59e0b;
+  border-radius: 12px;
+  padding: 3px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+.station-target-label {
+  font-family: var(--font-body);
+  font-size: clamp(0.78rem, 0.88vw, 0.88rem);
+  font-weight: 800;
+  color: #cbd5e1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.station-target-num {
+  color: #ffd54f;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1.1rem, 1.4vw, 1.35rem);
+  line-height: 1;
+  text-shadow: 0 0 10px rgba(255, 213, 79, 0.5);
+}
+
+/* ─── 2-Column Responsive Grid ──────────────────────────────────────────── */
+.station-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(8px, 1.2vw, 14px);
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
+  max-height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.station-col-left,
+.station-col-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: clamp(6px, 1vh, 10px);
+  width: 100%;
+  min-height: 0;
+  max-height: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+}
+
+/* ─── Running Calculation & Status Bar ──────────────────────────────────── */
+.running-ratio-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: rgba(12, 10, 32, 0.9);
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.running-ratio-text {
+  font-family: var(--font-display);
+  font-size: clamp(0.9rem, 1.05vw, 1.1rem);
+  font-weight: 900;
+  color: #fcd34d;
+  line-height: 1.3;
+}
+
+.running-ratio-text.exact {
+  color: #4ade80;
+  text-shadow: 0 0 10px rgba(74, 222, 128, 0.6);
+}
+
+.running-ratio-text.over {
+  color: #f87171;
+  text-shadow: 0 0 10px rgba(248, 113, 113, 0.6);
+}
+
+/* ─── Story Request Box ──────────────────────────────────────────────────── */
+.station-story-box {
+  padding: 8px 14px;
+  border-radius: var(--radius-lg, 16px);
+  border-left: 4px solid var(--gold);
+  background: rgba(26, 20, 68, 0.82);
+  border-top: 1px solid rgba(130, 110, 210, 0.2);
+  border-right: 1px solid rgba(130, 110, 210, 0.2);
+  border-bottom: 1px solid rgba(130, 110, 210, 0.2);
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.story-tag {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--gold-light);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+  letter-spacing: 0.5px;
+}
+
+.story-text {
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: #ffffff;
+  margin: 0;
+}
+
+/* ─── Tabs & Pill Selectors ──────────────────────────────────────────────── */
+.station-tabs-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  flex-shrink: 0;
+  width: 100%;
+}
+
+.station-tabs-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--gold-light);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tab-pill-group,
+.tool-pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+}
+
+.station-tab-pill,
+.station-tool-pill {
+  padding: 5px 12px;
+  border-radius: var(--radius-pill, 9999px);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.station-tab-pill:hover,
+.station-tool-pill:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
+}
+
+.station-tab-pill.active,
+.station-tool-pill.active {
+  background: linear-gradient(135deg, var(--gold) 0%, #f59e0b 100%);
+  color: #0f172a;
+  border-color: #fef08a;
+  box-shadow: 0 3px 12px rgba(245, 158, 11, 0.4);
+  font-weight: 800;
+}
+
+/* ─── Rounds Navigation Bar (Station B & D) ───────────────────────────────── */
+.rounds-nav-bar {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.round-step-btn {
+  padding: 4px 10px;
+  border-radius: var(--radius-pill, 9999px);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #cbd5e1;
+  font-weight: 700;
+  font-size: 0.78rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+.round-step-btn.current {
+  background: rgba(124, 92, 191, 0.45);
+  border-color: var(--purple-light);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(124, 92, 191, 0.4);
+}
+
+.round-step-btn.completed {
+  background: rgba(76, 175, 80, 0.22);
+  border-color: var(--green);
+  color: #86efac;
+}
+
+/* ─── Station B Builder Controls Card ────────────────────────────────────── */
+.builder-controls-card {
+  padding: 10px 14px;
+  border-radius: var(--radius-lg, 16px);
+  background: rgba(26, 20, 68, 0.82);
+  border: 1px solid rgba(130, 110, 210, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.builder-title {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: var(--gold-light);
+}
+
+.control-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-row label {
+  font-size: 0.82rem;
+  color: #e2e8f0;
+}
+
+.stepper-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stepper-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.stepper-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: var(--gold);
+}
+
+.unit-display {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--gold-light);
+  min-width: 28px;
+  text-align: center;
+}
+
+.slider {
+  flex: 1;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+
+/* ─── Station C: 4-Step Pipeline Bar & Clause Selectors ──────────────────── */
+.pipeline-steps-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  margin: 2px 0;
+  flex-shrink: 0;
+  width: 100%;
+}
+
+.pipe-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  opacity: 0.5;
+  transition: all 0.2s ease;
+}
+
+.pipe-step.active,
+.pipe-step.done {
+  opacity: 1;
+}
+
+.step-circle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.pipe-step.active .step-circle {
+  background: var(--gold);
+  color: #0f172a;
+  border-color: #fef08a;
+  box-shadow: 0 0 10px rgba(255, 179, 0, 0.5);
+}
+
+.pipe-step.done .step-circle {
+  background: var(--green);
+  color: #fff;
+  border-color: #86efac;
+}
+
+.step-name {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-align: center;
+  color: #cbd5e1;
+  white-space: nowrap;
+}
+
+.pipeline-step-card {
+  padding: 10px 14px;
+  border-radius: var(--radius-lg, 16px);
+  background: rgba(26, 20, 68, 0.82);
+  border: 1px solid rgba(130, 110, 210, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.step-card-header h4 {
+  margin: 0 0 2px 0;
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.step-card-header p {
+  margin: 0 0 6px 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.clauses-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.clause-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: var(--radius-md, 10px);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clause-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.clause-btn.selected {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: #22c55e;
+  color: #bbf7d0;
+  font-weight: 700;
+}
+
+.clause-btn.noise-highlight {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #fca5a5;
+  font-weight: 700;
+}
+
+.checkbox-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+/* ─── Station C Plan Summary Board ───────────────────────────────────────── */
+.plan-summary-board {
+  padding: 10px 14px;
+  border-radius: var(--radius-lg, 16px);
+  background: rgba(26, 20, 68, 0.82);
+  border: 1px solid rgba(130, 110, 210, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-sizing: border-box;
+}
+
+.summary-board-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--gold-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.summary-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: #e2e8f0;
+  line-height: 1.35;
+}
+
+.summary-item strong {
+  color: #ffffff;
+}
+
+/* ─── Station D: Flawed Plan Spotters ────────────────────────────────────── */
+.rival-quote-callout {
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm, 8px);
+  font-size: 0.82rem;
+  color: #fed7aa;
+  border-left: 3px solid #fb923c;
+  margin-top: 4px;
+}
+
+.flaw-warning-banner {
+  background: rgba(239, 68, 68, 0.2);
+  border-left: 4px solid var(--red);
+  padding: 6px 12px;
+  border-radius: 0 8px 8px 0;
+  color: #fca5a5;
+  font-size: 0.82rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.spot-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.spot-step-card {
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  background: rgba(30, 25, 70, 0.85);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+}
+
+.spot-step-card:hover {
+  border-color: #fbbf24;
+  background: rgba(251, 191, 36, 0.18);
+  transform: translateY(-1px);
+}
+
+.spot-step-card.selected-error {
+  background: rgba(34, 197, 94, 0.28);
+  border-color: #4ade80;
+  color: #bbf7d0;
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.4);
+}
+
+.spot-step-card.selected-wrong-guess {
+  background: rgba(239, 68, 68, 0.28);
+  border-color: #f87171;
+  color: #fca5a5;
+}
+
+/* ─── Quiz elements ─────────────────────────────────────────────────────── */
+.confirmation-quiz-card {
+  padding: 8px 12px;
+  border-radius: var(--radius-lg, 14px);
+  background: rgba(26, 20, 68, 0.82);
+  border: 1px solid rgba(130, 110, 210, 0.25);
+  flex-shrink: 0;
+}
+
+.quiz-question-title {
+  font-size: 0.85rem;
+  color: #fff;
+  font-weight: 800;
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+
+.quiz-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.quiz-option-btn {
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.quiz-option-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.quiz-option-btn.correct {
+  background: rgba(76, 175, 80, 0.3);
+  border-color: var(--green);
+  color: #86efac;
+}
+
+.quiz-option-btn.wrong {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: var(--red);
+  color: #fca5a5;
+}
+
+/* ─── Visual Stage ───────────────────────────────────────────────────────── */
+.station-visual-stage,
+.flawed-visual-stage,
+.live-preview-box {
+  padding: 8px 12px;
+  border-radius: var(--radius-lg, 16px);
+  background: rgba(26, 20, 68, 0.82);
+  border: 1px solid rgba(130, 110, 210, 0.25);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.stage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.tool-name-indicator {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.optimal-badge {
+  background: rgba(76, 175, 80, 0.2);
+  border: 1px solid var(--green);
+  color: #86efac;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill, 9999px);
+}
+
+.visual-display-area {
+  display: flex;
+  justify-content: center;
+  margin: 4px 0;
+  width: 100%;
+}
+
+.tool-explanation-footer {
+  margin-top: 4px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: #e2e8f0;
+  line-height: 1.35;
+}
+
+/* ─── Feedback Box ───────────────────────────────────────────────────────── */
+.quiz-feedback-box {
+  margin-top: 4px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  animation: slideInUp 0.2s ease;
+}
+
+.quiz-feedback-box.success {
+  background: rgba(76, 175, 80, 0.22);
+  border: 1px solid var(--green);
+  color: #86efac;
+}
+
+.quiz-feedback-box.retry {
+  background: rgba(239, 68, 68, 0.22);
+  border: 1px solid var(--red);
+  color: #fca5a5;
+}
+
+/* ─── Guide / Help Cards ────────────────────────────────────────────────── */
+.station-guide-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px dashed rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  padding: 8px 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.station-guide-text {
+  font-family: var(--font-body);
+  font-size: clamp(0.85rem, 0.95vw, 0.95rem);
+  color: #f8fafc;
+  line-height: 1.4;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* ─── Success / Completion Panel ────────────────────────────────────────── */
+.station-success {
+  background: rgba(18, 16, 52, 0.96);
+  border: 2px solid rgba(34, 197, 94, 0.7);
+  border-radius: 14px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  box-sizing: border-box;
+  animation: bounceIn 0.3s ease;
+}
+
+.station-success .success-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.station-success-msg {
+  font-family: var(--font-body);
+  font-size: clamp(0.88rem, 1vw, 1rem);
+  color: #ffffff;
+  line-height: 1.35;
+  font-weight: 800;
+  margin: 0;
+}
+
+.station-success-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 4px;
+}
+
+.station-success-actions button {
+  padding: 6px 16px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  min-height: 36px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+/* ─── Station Action Buttons Row ────────────────────────────────────────── */
+.station-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: auto;
+  width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+.station-actions button,
+.station-actions-row button {
+  padding: 6px 14px;
+  min-height: 36px;
+  flex: 1 1 auto;
+  font-size: clamp(0.85rem, 0.95vw, 0.92rem);
+  font-weight: 800;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+/* Standard Button Styles for Stations */
+.btn-primary {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #0f172a;
+  border: 1px solid #fbbf24;
+  box-shadow: 0 3px 12px rgba(245, 158, 11, 0.35);
+  transition: all 0.15s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 16px rgba(245, 158, 11, 0.45);
+}
+
+.btn-outline {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  transition: all 0.15s ease;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-green {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: #ffffff;
+  border: 1px solid #86efac;
+  box-shadow: 0 3px 12px rgba(34, 197, 94, 0.35);
+  transition: all 0.15s ease;
+}
+
+.btn-green:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ─── Responsive Media Queries ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .station-wrap {
+    padding: 4px 6px;
+    gap: 4px;
+  }
+  .station-grid-2col {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    overflow-y: auto;
+  }
+  .station-actions button,
+  .station-success-actions button {
+    min-height: 32px;
+    padding: 4px 10px;
+    font-size: 0.82rem;
+  }
+}
